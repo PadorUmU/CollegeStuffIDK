@@ -1,0 +1,315 @@
+#include <iostream>
+using namespace std;
+
+struct Siswa
+{
+    int nis;
+    string nama;
+    int nilai;
+    Siswa *prev = NULL;
+    Siswa *next = NULL;
+};
+
+struct DoubleLinkedList
+{
+private:
+    Siswa *head;
+    Siswa *tail;
+
+public:
+    DoubleLinkedList()
+    {
+        head = NULL;
+        tail = NULL;
+    }
+
+    void addSiswa()
+    {
+        int newNis;
+        string newNama;
+        int newNilai;
+        Siswa *tmp = new Siswa();
+        cout << "NIS: ";
+        cin >> newNis;
+        tmp->nis = newNis;
+        cout << "Nama: ";
+        cin.ignore();
+        cin >> newNama;
+        tmp->nama = newNama;
+        cout << "Nilai: ";
+        cin >> newNilai;
+        tmp->nilai = newNilai;
+
+        if (head == NULL)
+        {
+            head = tail = tmp;
+        }
+        else
+        {
+            tail->next = tmp;
+            tmp->prev = tail;
+            tail = tmp;
+        }
+        cout << "Data Berhasil Ditambahkan!\n";
+    }
+
+    void lihatData()
+    {
+        Siswa *cur = head;
+        cout << "\n========================================================\n";
+        cout << "              DATA NILAI UJIAN HARIAN SISWA             \n";
+        cout << "=========================================================\n";
+        while (cur != NULL)
+        {
+            cout << "NIS: " << cur->nis << "\n";
+            cout << "Nama: " << cur->nama << "\n";
+            cout << "Nilai: " << cur->nilai << "\n\n";
+            cur = cur->next;
+        }
+        cout << "=========================================================\n";
+    }
+
+    void bubbleSortNilai()
+    {
+        if (!head || !head->next)
+            return;
+
+        bool issorted;
+        do
+        {
+            issorted = true;
+            Siswa *cur = head;
+
+            while (cur->next != NULL)
+            {
+                if (cur->nilai < cur->next->nilai)
+                {
+                    int tempNilai = cur->next->nilai;
+                    int tempNis = cur->next->nis;
+                    string tempNama = cur->next->nama;
+
+                    cur->next->nilai = cur->nilai;
+                    cur->next->nis = cur->nis;
+                    cur->next->nama = cur->nama;
+
+                    cur->nilai = tempNilai;
+                    cur->nis = tempNis;
+                    cur->nama = tempNama;
+
+                    issorted = false;
+                }
+                cur = cur->next;
+            }
+        } while (!issorted);
+    }
+
+    void insertionSortNis()
+    {
+        if (!head || !head->next)
+            return;
+
+        Siswa *cur = head->next;
+
+        while (cur)
+        {
+            Siswa *tmp = cur->next;
+            Siswa *pos = cur->prev;
+
+            while (pos && cur->nis < pos->nis)
+            {
+                pos = pos->prev;
+            }
+
+            if (pos == cur->prev)
+            {
+                cur = tmp;
+                continue;
+            }
+
+            // Cabut cur
+            if (cur->prev)
+                cur->prev->next = cur->next;
+            if (cur->next)
+                cur->next->prev = cur->prev;
+
+            // Sisipin cur ke posisi baru
+            if (!pos)
+            {
+                cur->next = head;
+                cur->prev = NULL;
+                head->prev = cur;
+                head = cur;
+            }
+            else
+            {
+                cur->next = pos->next;
+                cur->prev = pos;
+                if (pos->next)
+                    pos->next->prev = cur;
+                pos->next = cur;
+            }
+
+            cur = tmp;
+        }
+
+        // update tail (biar aman)
+        tail = head;
+        while (tail && tail->next)
+        {
+            tail = tail->next;
+        }
+    }
+
+    void cariNIS()
+    {
+        if (!head)
+        {
+            cout << "Data masih kosong\n";
+            return;
+        }
+
+        int cari;
+        cout << "Masukkan NIS yang ingin dicari: ";
+        cin >> cari;
+
+        Siswa *cur = head;
+        bool ketemu = false;
+
+        while (cur)
+        {
+            if (cur->nis == cari)
+            {
+                cout << "NIS: " << cur->nis << "\n";
+                cout << "Nama: " << cur->nama << "\n";
+                cout << "Nilai: " << cur->nilai << "\n\n";
+                ketemu = true;
+                break;
+            }
+            cur = cur->next;
+        }
+
+        if (!ketemu)
+        {
+            cout << "NIS " << cari << " tidak ditemukan.\n";
+        }
+    }
+    /*    void hapusSiswaByNis() {
+        if (!head) {
+            cout << "Data kosong!\n";
+            return;
+        }
+
+        int target;
+        cout << "Masukkan NIS yang ingin dihapus: ";
+        cin >> target;
+
+        Siswa* cur = head;
+
+        while (cur) {
+            if (cur->nis == target) {
+                if (cur == head && cur == tail) {
+                    head = tail = nullptr;
+                } else if (cur == head) {
+                    head = head->next;
+                    head->prev = nullptr;
+                } else if (cur == tail) {
+                    tail = tail->prev;
+                    tail->next = nullptr;
+                } else {
+                    cur->prev->next = cur->next;
+                    cur->next->prev = cur->prev;
+                }
+                delete cur;
+                cout << "Data berhasil dihapus!\n";
+                return;
+                }
+            cur = cur->next;
+            }
+
+        cout << "Data dengan NIS tersebut tidak ditemukan.\n";
+    }*/
+};
+
+int main()
+{
+    DoubleLinkedList siswa;
+    int menu;
+
+    while (1)
+    {
+        cout << "\n============================================\n";
+        cout << "    PENDATAAN NILAI MATEMATIKA SD    \n";
+        cout << "============================================\n";
+        cout << "MENU\n";
+        cout << "1. Input Data Siswa\n";
+        cout << "2. Tampilkan Data\n";
+        cout << "3. Urutkan Data\n";
+        cout << "4. Cari Siswa\n";
+        cout << "0. Keluar\n";
+        cout << "Silahkan Pilih Menu (0-4): ";
+        cin >> menu;
+
+        switch (menu)
+        {
+        case 1:
+        {
+            char confirm;
+            do
+            {
+                siswa.addSiswa();
+                cout << "Tambah data lagi (y/t)? ";
+                cin >> confirm;
+            } while (confirm == 'y' || confirm == 'Y');
+            break;
+        }
+
+        case 2:
+            siswa.lihatData();
+            break;
+
+        case 3:
+        {
+            int pilih;
+            cout << "1. Nis\n";
+            cout << "2. Nilai\n";
+            cout << "Urutkan berdasarkan? ";
+            cin >> pilih;
+
+            if (pilih == 1)
+            {
+                siswa.insertionSortNis();
+            }
+            else
+            {
+                siswa.bubbleSortNilai();
+            }
+
+            siswa.lihatData();
+
+            char pilihan;
+            cout << "Kembali ke menu (m) atau keluar (k)? ";
+            cin >> pilihan;
+
+            if (pilihan == 'k' || pilihan == 'K')
+            {
+                cout << "Sesi sudah berakhir\n";
+                return 0;
+            }
+            break;
+        }
+
+        case 4:
+            siswa.cariNIS();
+            break;
+
+        case 0:
+            cout << "Sesi sudah berakhir\n";
+            return 0;
+
+        default:
+            cout << "Pilihan tidak valid!\n";
+        }
+    }
+
+    return 0;
+}
